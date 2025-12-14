@@ -1,0 +1,5 @@
+{
+  "name": "Waifu Generator AI",
+  "description": "An AI-powered anime character generator with deep roleplay, affection systems, and dynamic backstories using Gemini 3 Pro and Flash.",
+  "requestFramePermissions": []
+}
