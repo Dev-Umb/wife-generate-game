@@ -1,8 +1,8 @@
 import { GoogleGenAI, Type, FunctionDeclaration, Schema, Chat, Tool, HarmCategory, HarmBlockThreshold, Content } from "@google/genai";
 import { WaifuProfile, ChatMessage, VisualState, ImageServiceConfig } from "../types";
 
-// Default Gradio endpoint
-const DEFAULT_GRADIO_ENDPOINT = "https://umb.ink/iot54/gradio_api/call/generate_image";
+// Default Gradio endpoint from environment variable
+const DEFAULT_GRADIO_ENDPOINT = import.meta.env.VITE_GRADIO_ENDPOINT || "";
 
 // Image size mappings for Gradio
 const GRADIO_SIZE_MAP = {

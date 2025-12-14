@@ -92,8 +92,8 @@ const SAVE_KEY_CUSTOM_DRAFT = 'WAIFU_GAME_CUSTOM_DRAFT';
 const SAVE_KEY_HISTORY_LEGACY = 'WAIFU_GAME_HISTORY_LIST';
 const SAVE_KEY_IMAGE_SERVICE = 'WAIFU_GAME_IMAGE_SERVICE';
 
-// Default Gradio endpoint
-const DEFAULT_GRADIO_ENDPOINT = 'https://umb.ink/iot54/gradio_api/call/generate_image';
+// Default Gradio endpoint from environment variable
+const DEFAULT_GRADIO_ENDPOINT = import.meta.env.VITE_GRADIO_ENDPOINT || "";
 
 export const App: React.FC = () => {
   const [hasKey, setHasKey] = useState(false);
