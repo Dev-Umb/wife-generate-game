@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChatMessage, WaifuProfile } from '../types';
+import { ImageViewer } from './ImageViewer';
 
 interface Props {
   messages: ChatMessage[];
@@ -42,6 +43,7 @@ export const ChatInterface: React.FC<Props> = ({
   };
 
   const [showActions, setShowActions] = React.useState(false);
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   const handleAction = (type: 'move' | 'leave' | 'fast_forward') => {
       setShowActions(false);
@@ -55,10 +57,10 @@ export const ChatInterface: React.FC<Props> = ({
   };
 
   return (
-    <div className={`flex flex-col h-full backdrop-blur-md rounded-t-2xl border-x border-t border-white/10 relative transition-colors duration-500 overflow-hidden shadow-[0_-10px_40px_rgba(0,0,0,0.5)] ${isSeparated ? 'bg-black/95' : 'bg-slate-950/95'}`}>
+    <div className={`flex flex-col h-full backdrop-blur-md rounded-t-2xl border-x border-t border-white/10 relative transition-colors duration-500 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] ${isSeparated ? 'bg-black/95' : 'bg-slate-950/95'}`}>
       
-      {/* Header */}
-      <div className={`p-4 border-b border-white/10 backdrop-blur-md absolute top-0 w-full z-30 flex items-center justify-between rounded-t-2xl transition-colors ${isSeparated ? 'bg-indigo-900/40' : 'bg-black/30'}`}>
+      {/* Header - Changed from absolute to normal flow */}
+      <div className={`p-4 border-b border-white/10 backdrop-blur-md w-full z-30 flex items-center justify-between rounded-t-2xl transition-colors shrink-0 ${isSeparated ? 'bg-indigo-900/40' : 'bg-black/30'}`}>
         <div className="flex items-center gap-3">
            <div className={`w-2 h-2 rounded-full animate-pulse ${isSeparated ? 'bg-gray-500' : 'bg-green-500'}`}></div>
            <div>
@@ -90,7 +92,7 @@ export const ChatInterface: React.FC<Props> = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 pt-24 space-y-4 scrollbar-hide pb-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide pb-4 min-h-0">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -98,8 +100,19 @@ export const ChatInterface: React.FC<Props> = ({
           >
             {/* Image Attachment */}
             {msg.imageUrl && (
-                <div className="mb-2 max-w-[85%] rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-lg">
-                    <img src={msg.imageUrl} alt="Scene" className="w-full h-auto object-cover" />
+                <div 
+                  className="mb-2 max-w-[85%] rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-lg cursor-pointer group relative"
+                  onClick={() => setViewingImage(msg.imageUrl!)}
+                >
+                    <img src={msg.imageUrl} alt="Scene" className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
+                    {/* Zoom Hint */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-sm rounded-full p-3">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
+                    </div>
                 </div>
             )}
             
@@ -159,7 +172,7 @@ export const ChatInterface: React.FC<Props> = ({
       )}
 
       {/* Input Area */}
-      <div className="p-4 bg-black/60 border-t border-white/10 relative backdrop-blur-md pb-20 md:pb-4 mb-0">
+      <div className="p-4 bg-black/60 border-t border-white/10 relative backdrop-blur-md shrink-0">
         {/* Action Menu Popup */}
         {showActions && (
             <div className="absolute bottom-full left-4 mb-2 bg-slate-800 border border-white/10 rounded-xl shadow-xl overflow-hidden flex flex-col w-48 animate-in fade-in slide-in-from-bottom-2 z-20">
@@ -209,6 +222,15 @@ export const ChatInterface: React.FC<Props> = ({
           </button>
         </div>
       </div>
+
+      {/* Image Viewer Modal */}
+      {viewingImage && (
+        <ImageViewer 
+          imageUrl={viewingImage} 
+          alt="Scene" 
+          onClose={() => setViewingImage(null)} 
+        />
+      )}
     </div>
   );
 };

@@ -1,0 +1,153 @@
+# Waifu Generator AI - Cursor Rules
+
+## 项目概述
+这是一个基于 Google Gemini AI 的深度角色扮演/视觉小说体验应用。用户可以通过 AI 生成独特的二次元角色，与角色进行沉浸式对话，并体验动态剧情、好感度系统和多结局故事。
+
+## 技术栈
+- **框架**: React 19 + TypeScript 5.8
+- **构建工具**: Vite 6
+- **样式**: Tailwind CSS (CDN 引入)
+- **AI 服务**: @google/genai (Gemini AI SDK)
+- **存储**: IndexedDB (通过 storageService 封装)
+- **图片生成**: Gradio API (默认) / Gemini Image API (备选)
+
+## 项目结构
+```
+├── App.tsx                 # 主应用组件 (状态管理中心)
+├── types.ts                # 全局 TypeScript 类型定义
+├── components/             # UI 组件目录
+│   ├── ApiKeyModal.tsx     # API Key 输入弹窗
+│   ├── CharacterCard.tsx   # 角色信息卡片
+│   ├── ChatInterface.tsx   # 聊天界面
+│   ├── ConfirmModal.tsx    # 确认对话框
+│   ├── Inventory.tsx       # 背包系统
+│   ├── MemoryGallery.tsx   # 回忆画廊
+│   ├── MobileNav.tsx       # 移动端导航
+│   └── TextEditorModal.tsx # 文本编辑器
+├── services/
+│   ├── geminiService.ts    # Gemini AI 服务封装 (核心逻辑)
+│   └── storageService.ts   # IndexedDB 存储服务
+├── index.html              # HTML 入口 (含 Tailwind CDN)
+├── index.tsx               # React 入口
+└── vite.config.ts          # Vite 配置
+```
+
+## 代码风格规范
+
+### React 组件
+- 使用函数式组件 + Hooks，禁止使用 Class 组件
+- 组件使用命名导出: `export const ComponentName: React.FC<Props> = () => {}`
+- Props 接口定义放在组件文件顶部: `interface Props { ... }`
+- 组件文件名使用 PascalCase: `CharacterCard.tsx`
+
+### TypeScript
+- 所有类型定义集中在 `types.ts`
+- 使用 `interface` 定义对象类型，`type` 用于联合类型
+- 避免使用 `any`，必要时使用注释说明原因
+- 枚举使用 PascalCase: `enum AffectionLevel { ... }`
+
+### 状态管理
+- 使用 React useState/useEffect/useRef 管理状态
+- 不使用外部状态管理库 (Redux/Zustand 等)
+- 复杂状态使用对象结构: `useState<GameState>({...})`
+- 使用 useRef 保存不触发渲染的值 (如 ChatSession)
+
+### 样式规范
+- 使用 Tailwind CSS 类名内联样式
+- 主色调: slate (背景), purple (主题), pink (强调)
+- 暗色模式优先: bg-slate-900, text-white
+- 使用渐变: bg-gradient-to-r from-pink-600 to-purple-600
+- 圆角: rounded-xl, rounded-2xl
+- 动画: 使用 Tailwind animate-* 或自定义 CSS 动画
+
+### 命名规范
+- 变量/函数: camelCase (`handleSendMessage`, `gameState`)
+- 常量: SCREAMING_SNAKE_CASE (`SAVE_KEY_ACTIVE_SESSION_ID`)
+- 组件: PascalCase (`ChatInterface`)
+- 类型/接口: PascalCase (`WaifuProfile`, `GameState`)
+
+### 异步处理
+- 使用 async/await 语法
+- 错误处理使用 try/catch，在 catch 中 console.error 并提供用户友好提示
+- API 调用失败时提供备选方案 (如 Gradio 失败回退到 Gemini)
+
+### 注释规范
+- 函数注释使用 JSDoc 风格: `/** 描述 */`
+- 代码块注释使用英文
+- 复杂逻辑添加行内注释说明
+- TODO 使用格式: `// TODO: 描述`
+
+## 核心模块说明
+
+### geminiService.ts (AI 服务核心)
+- `generateWaifuProfile()`: 使用 JSON Schema 生成角色设定
+- `generateWaifuImage()`: 生成角色立绘 (Gradio/Gemini)
+- `generateSceneImage()`: 生成场景插图
+- `generateItemImage()`: 生成道具图片
+- `createChatSession()`: 创建 AI 对话会话 (含 Function Calling)
+- `generateReplySuggestions()`: 生成对话选项建议
+
+### Function Calling 工具列表
+- `updateAffection`: 更新好感度
+- `updateVisualState`: 更新视觉状态
+- `generateScene`: 生成场景图片
+- `generateItem`: 生成道具
+- `saveMemory`: 保存回忆
+- `switchScene`: 切换场景
+- `triggerEnding`: 触发结局 (HE/BE)
+- `unlockSecret`: 解锁秘密
+
+### storageService.ts (存储服务)
+- 使用 IndexedDB 存储游戏存档
+- 支持从 LocalStorage 迁移数据
+- 数据库名: `WaifuGameDB`
+- 对象存储: `sessions`
+
+## 开发指南
+
+### 添加新组件
+1. 在 `components/` 目录创建 PascalCase 命名的 .tsx 文件
+2. 定义 Props 接口
+3. 使用函数式组件 + 命名导出
+4. 在 App.tsx 中导入使用
+
+### 添加新类型
+1. 在 `types.ts` 中定义 interface 或 type
+2. 导出类型供其他模块使用
+
+### 添加新 AI 功能
+1. 在 `geminiService.ts` 中添加新函数
+2. 如需 Function Calling，添加 FunctionDeclaration
+3. 在 `createChatSession` 的 tools 数组中注册
+
+### 环境变量
+- `VITE_GRADIO_ENDPOINT`: Gradio 图片生成服务地址
+- `VITE_API_KEY`: Gemini API Key (可选，运行时可输入)
+
+## 注意事项
+
+### 安全设置
+- R18 模式使用 `BLOCK_NONE` 安全设置
+- 普通模式使用 `BLOCK_ONLY_HIGH` 避免误拦截
+
+### 性能优化
+- 聊天记录过长时自动摘要
+- 图片使用 Base64 存储
+- 使用 debounce 防止频繁自动保存
+
+### 兼容性
+- 使用 import.meta.env 访问 Vite 环境变量
+- IndexedDB 存储前使用 JSON 序列化确保数据干净
+
+## 语言偏好
+- 代码注释: 英文
+- 用户界面: 中文
+- AI Prompt: 中英混合 (中文为主)
+- Commit 信息: 中文或英文均可
+
+## 禁止事项
+- ❌ 不要使用 Class 组件
+- ❌ 不要引入新的状态管理库
+- ❌ 不要修改 index.html 中的 CDN 引入方式
+- ❌ 不要在组件中直接调用 indexedDB API，使用 storageService
+- ❌ 不要硬编码 API Key
